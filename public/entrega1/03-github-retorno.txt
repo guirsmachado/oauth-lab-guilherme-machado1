@@ -1,0 +1,2 @@
+Homepage URL: SUBSTITUIR_URL_BASE
+Authorization callback URL: SUBSTITUIR_URL_BASE/oauth/callback/github
