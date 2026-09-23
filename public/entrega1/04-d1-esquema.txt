@@ -1,4 +1,5 @@
-oauth_transactions_expiry | index
-sessions_expiry | index
+_cf_KV | table
 oauth_transactions | table
+oauth_transactions_expiry | index
 sessions | table
+sessions_expiry | index
