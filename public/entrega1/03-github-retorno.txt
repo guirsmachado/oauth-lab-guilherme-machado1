@@ -1,2 +1,3 @@
-Homepage URL: SUBSTITUIR_URL_BASE
-Authorization callback URL: SUBSTITUIR_URL_BASE/oauth/callback/github
+
+Homepage URL: https://oauth-lab-guilherme-machado1.pages.dev
+Authorization callback URL: https://oauth-lab-guilherme-machado1.pages.dev/oauth/callback/github
