@@ -1,1 +1,2 @@
-SUBSTITUIR_URL_BASE/oauth/callback/google
+
+https://oauth-lab-guilherme-machado1.pages.dev/oauth/callback/google
