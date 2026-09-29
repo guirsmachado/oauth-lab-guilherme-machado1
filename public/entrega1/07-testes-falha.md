@@ -1,63 +1,95 @@
-# Testes de falha
+# Testes de Falha
 
-> Preencha **Resultado observado** somente depois de executar cada caso na implantação de produção. Não registre cookies, códigos, tokens, `state`, `nonce` ou `code_challenge`.
+## Caso 1 - Retorno sem cookie temporário
 
-## Caso 1 - retorno sem cookie temporário
+**Preparação:**  
+Foi iniciado um fluxo de autenticação com Google em uma janela normal do navegador. A URL de autorização foi copiada e aberta em uma janela anônima, que não possuía o cookie temporário `__Host-oauth-tx`.
 
-**Preparação:** iniciar o login em uma janela comum, parar na página do provedor e abrir a autorização em uma janela privativa sem `__Host-oauth-tx`.
+**Pedido enviado:**  
+Foi concluído o fluxo de autenticação na janela anônima, sem o cookie temporário criado no início da autenticação.
 
-**Pedido enviado:** concluir o login na janela privativa e permitir o retorno para `/oauth/callback/{provider}`.
+**Resultado esperado:**  
+A aplicação deveria recusar o retorno por ausência do cookie `__Host-oauth-tx` e não criar uma sessão autenticada.
 
-**Resultado esperado:** a rota de retorno recusa a resposta e nenhuma sessão é criada.
+**Resultado observado:**  
+A aplicação recusou o retorno e nenhuma sessão foi criada.
 
-**Resultado observado:** PREENCHER APÓS O TESTE.
+---
 
-## Caso 2 - state alterado
+## Caso 2 - State alterado
 
-**Preparação:** iniciar um novo login e parar na página do provedor antes de fornecer as credenciais.
+**Preparação:**  
+Foi iniciado um novo fluxo de autenticação e, antes da conclusão do login, um caractere do parâmetro `state` foi alterado.
 
-**Pedido enviado:** alterar um único caractere do parâmetro `state` na barra de endereço e prosseguir, sem salvar a URL modificada.
+**Pedido enviado:**  
+Foi enviado ao callback um retorno OAuth contendo um valor de `state` diferente daquele originalmente gerado e armazenado pela aplicação.
 
-**Resultado esperado:** a rota de retorno recusa a resposta antes da troca do código.
+**Resultado esperado:**  
+A aplicação deveria recusar o retorno antes da troca do código de autorização e não criar uma sessão.
 
-**Resultado observado:** PREENCHER APÓS O TESTE.
+**Resultado observado:**  
+O retorno com `state` alterado foi recusado e nenhuma nova sessão foi criada.
 
-## Caso 3 - reutilização da transação
+---
 
-**Preparação:** concluir um login com sucesso e localizar a requisição de retorno no painel Network.
+## Caso 3 - Reutilização da transação
 
-**Pedido enviado:** usar `Copy URL` e abrir novamente a mesma URL de retorno.
+**Preparação:**  
+Foi realizado um fluxo de autenticação válido. Após a conclusão do login, a URL da requisição de callback foi copiada pelo painel Network das ferramentas de desenvolvimento do navegador.
 
-**Resultado esperado:** a repetição falha porque a transação já foi removida.
+**Pedido enviado:**  
+A mesma URL de callback utilizada anteriormente foi acessada novamente após a conclusão bem-sucedida do fluxo de autenticação.
 
-**Resultado observado:** PREENCHER APÓS O TESTE.
+**Resultado esperado:**  
+A aplicação deveria recusar a requisição, pois a transação já havia sido utilizada e removida.
 
-## Caso 4 - sessão expirada
+**Resultado observado:**  
+A reutilização da transação foi recusada e nenhuma nova sessão foi criada.
 
-**Preparação:** criar uma sessão de teste e, no console D1, executar `UPDATE sessions SET expires_at = 0;`.
+---
 
-**Pedido enviado:** recarregar a página e consultar `/api/me`.
+## Caso 4 - Sessão expirada
 
-**Resultado esperado:** `/api/me` responde 401.
+**Preparação:**  
+Foi criada uma sessão válida. Em seguida, no console do banco D1, o campo `expires_at` das sessões foi alterado para `0`.
 
-**Resultado observado:** PREENCHER APÓS O TESTE.
+**Pedido enviado:**  
+Foi realizada uma nova consulta à rota `/api/me` após a expiração forçada da sessão.
 
-## Caso 5 - origem inválida na saída
+**Resultado esperado:**  
+A rota `/api/me` deveria responder com HTTP 401, indicando que a sessão não era mais válida.
 
-**Preparação:** manter uma sessão válida em `URL_BASE` e abrir outra origem, como `https://example.com`.
+**Resultado observado:**  
+A rota `/api/me` respondeu com HTTP 401 e a sessão deixou de ser reconhecida pela aplicação.
 
-**Pedido enviado:** executar `fetch("URL_BASE/oauth/logout", { method: "POST", credentials: "include" });` no console da outra origem.
+---
 
-**Resultado esperado:** a rota recusa a operação e a sessão original permanece válida.
+## Caso 5 - Origem inválida na saída
 
-**Resultado observado:** PREENCHER APÓS O TESTE.
+**Preparação:**  
+Foi mantida uma sessão válida no endereço de produção da aplicação. Em outra aba, foi aberta uma página de origem diferente e realizada uma tentativa de logout a partir dessa origem.
 
-## Caso 6 - reutilização do cookie revogado
+**Pedido enviado:**  
+Foi enviado um pedido `POST` para `/oauth/logout` a partir de uma origem diferente de `PUBLIC_BASE_URL`.
 
-**Preparação:** em uma sessão exclusiva do laboratório, copiar temporariamente o valor do cookie `__Host-session` apenas para realizar o teste.
+**Resultado esperado:**  
+A aplicação deveria recusar o logout, pois o cabeçalho `Origin` não correspondia à origem autorizada, mantendo a sessão original ativa.
 
-**Pedido enviado:** executar logout, restaurar temporariamente o mesmo valor e consultar `/api/me`.
+**Resultado observado:**  
+O logout iniciado a partir da origem inválida foi recusado e a sessão original permaneceu válida.
 
-**Resultado esperado:** `/api/me` responde 401 porque a linha da sessão foi removida do D1.
+---
 
-**Resultado observado:** PREENCHER APÓS O TESTE.
+## Caso 6 - Reutilização do cookie revogado
+
+**Preparação:**  
+Foi criada uma sessão válida e o valor do cookie `__Host-session` foi copiado temporariamente para a realização do teste. Em seguida, foi realizado o logout normalmente.
+
+**Pedido enviado:**  
+Após o logout, o valor antigo do cookie foi restaurado no navegador e a rota `/api/me` foi consultada novamente.
+
+**Resultado esperado:**  
+A rota `/api/me` deveria responder com HTTP 401, pois a sessão correspondente ao cookie já havia sido removida do banco D1.
+
+**Resultado observado:**  
+O cookie antigo não restaurou a sessão e a rota `/api/me` respondeu com HTTP 401.
