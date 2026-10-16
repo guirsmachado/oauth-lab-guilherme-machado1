@@ -8,9 +8,9 @@ Repositório: https://github.com/guirsmachado/oauth-lab-guilherme-machado1
 
 Workflow: [ci.yml](.github/workflows/ci.yml)
 
-- [ ] Execução verde: COLOCAR_LINK_DA_EXECUCAO_VERDE
-- [ ] Execução vermelha proposital e linha de log: COLOCAR_LINK_DA_EXECUCAO_VERMELHA_E_ERRO
-- [ ] Execução verde após corrigir: COLOCAR_LINK_DA_EXECUCAO_CORRIGIDA
+- [x] Execução verde: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914353848
+- [x] Execução vermelha proposital: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914393803 — etapa `Falha proposital para evidência da avaliação (temporária)` executou `exit 1`; o passo temporário foi removido no commit seguinte.
+- [ ] Execução verde após remover a falha temporária: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914425656 (confirmar que terminou com sucesso antes da entrega)
 
 A migração é testada primeiro em SQLite local porque isso permite detectar erros de sintaxe e incompatibilidades básicas antes de alterar o banco D1 remoto, sem arriscar os dados de produção. O teste local não substitui uma validação específica do ambiente D1.
 
@@ -18,9 +18,9 @@ A migração é testada primeiro em SQLite local porque isso permite detectar er
 
 Workflow: status check **verificar**
 
-- [ ] PR bloqueado pelo status check verificar: COLOCAR_LINK_DO_PR_BLOQUEADO
-- [ ] PR liberado após correção: COLOCAR_LINK_DO_PR_LIBERADO
-- [ ] Saída do push direto recusado: REGISTRAR_AQUI
+- [ ] PR bloqueado pelo status check verificar: pendente — requer regra de proteção da `main` no GitHub.
+- [ ] PR liberado após correção: pendente — depende da proteção da `main` e de CI verde.
+- [ ] Saída do push direto recusado: pendente — não foi tentado para evitar alterar a branch de produção.
 
 Configuração necessária: criar uma regra para main que exija pull request e o status check verificar. A regra é uma configuração do GitHub e não é ativada apenas pela existência do workflow.
 
@@ -28,22 +28,20 @@ Configuração necessária: criar uma regra para main que exija pull request e o
 
 Workflow: [revisao-ia.yml](.github/workflows/revisao-ia.yml)
 
-- [ ] PR com SQL vulnerável e comentário da IA: COLOCAR_LINK_DO_PR
-- [ ] Comentário da IA após corrigir para prepare(...).bind(...): COLOCAR_LINK_DO_PR_ATUALIZADO
-- [ ] Log do teste sem a permissão pull-requests: write: COLOCAR_LINK_DA_EXECUCAO_COM_ERRO
-- [ ] Evidência após restaurar a permissão: COLOCAR_LINK_DA_EXECUCAO
+- [ ] PR com SQL vulnerável e comentário da IA: pendente — a execução atual falha porque `COPILOT_PAT` ainda não está configurado como secret do Actions.
+- [ ] Comentário da IA após corrigir para `prepare(...).bind(...)`: pendente — requer `COPILOT_PAT` válido.
+- [ ] Log do teste sem a permissão `pull-requests: write`: pendente — realizar depois de configurar `COPILOT_PAT`.
+- [ ] Evidência após restaurar a permissão: pendente — realizar depois de configurar `COPILOT_PAT`.
 
-Crítica à IA (preencher após observar a resposta real):  
-**Afirmação incorreta ou irrelevante:** PREENCHER COM UMA AFIRMACAO REAL.  
-**Por que está errada/irrelevante:** EXPLICAR COM BASE NO CÓDIGO E NO RESULTADO OBSERVADO.
+Crítica à IA (a preencher após uma resposta real): ainda não foi possível avaliar a resposta do modelo, pois a ação não recebeu `COPILOT_PAT`.
 
 ## Tarefa 4 — Migrações D1 depois do merge (1,5 ponto)
 
 Workflow: [migrar.yml](.github/workflows/migrar.yml)
 
-- [ ] Merge com alteração em migrations/ e execução do workflow: COLOCAR_LINK_DA_EXECUCAO
-- [ ] Saída real de PRAGMA table_info(...) ou consulta equivalente que confirme a mudança: COLOCAR_EVIDENCIA
-- [ ] Merge sem alteração em migrations/ e evidência de que o workflow não rodou: COLOCAR_EVIDENCIA
+- [ ] Merge com alteração em `migrations/` e execução do workflow: pendente — requer secrets Cloudflare, variáveis `D1_DATABASE_NAME` e `D1_DATABASE_ID`, e merge do PR.
+- [ ] Saída real de `PRAGMA table_info(sessions)` ou consulta equivalente que confirme `last_seen_at`: pendente — não foi executado no D1 remoto.
+- [ ] Merge sem alteração em `migrations/` e evidência de que o workflow não rodou: pendente — verificar depois do primeiro merge com migração.
 
 Configuração necessária: definir a variável de repositório D1_DATABASE_NAME com o nome real do banco D1, além dos segredos CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID e COPILOT_PAT. O token Cloudflare precisa ter permissão de edição do D1.
 
@@ -71,7 +69,8 @@ Em **Settings → Secrets and variables → Actions**, cadastrar:
 - Secret COPILOT_PAT (token com Copilot Requests, conforme a avaliação).
 - Secret CLOUDFLARE_API_TOKEN (permissão D1 Edit).
 - Secret CLOUDFLARE_ACCOUNT_ID.
-- Variable D1_DATABASE_NAME (nome real do banco D1).
+- Variable `D1_DATABASE_NAME` (nome real do banco D1).
+- Variable `D1_DATABASE_ID` (ID real do banco D1, usado para gerar a configuração temporária do Wrangler).
 
 Em **Settings → Actions → General**, confirmar que GitHub Actions está habilitado.
 
