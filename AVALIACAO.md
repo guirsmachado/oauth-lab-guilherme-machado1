@@ -10,7 +10,7 @@ Workflow: [ci.yml](.github/workflows/ci.yml)
 
 - [x] Execução verde: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914353848
 - [x] Execução vermelha proposital: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914393803 — etapa `Falha proposital para evidência da avaliação (temporária)` executou `exit 1`; o passo temporário foi removido no commit seguinte.
-- [ ] Execução verde após remover a falha temporária: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914425656 (confirmar que terminou com sucesso antes da entrega)
+- [x] Execução verde após remover a falha temporária: https://github.com/guirsmachado/oauth-lab-guilherme-machado1/actions/runs/38914425656
 
 A migração é testada primeiro em SQLite local porque isso permite detectar erros de sintaxe e incompatibilidades básicas antes de alterar o banco D1 remoto, sem arriscar os dados de produção. O teste local não substitui uma validação específica do ambiente D1.
 
