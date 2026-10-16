@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: verificar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Procura segredos versionados
+        shell: bash
+        run: |
+          if git grep -nE "GOCSPX-|client_secret[[:space:]]*=[[:space:]]*['\"][^'\"]+" -- . ':!*.md'; then
+            echo "::error::Possível segredo no repositório"
+            exit 1
+          fi
+
+      - name: Instala SQLite
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+
+      - name: Aplica as migrações D1 em um SQLite local
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d migrations || { echo "::error::Pasta migrations/ ausente"; exit 1; }
+          shopt -s nullglob
+          files=(migrations/*.sql)
+          test \${#files[@]} -gt 0 || { echo "::error::Nenhuma migração SQL encontrada"; exit 1; }
+          for f in "\${files[@]}"; do
+            echo "Validando $f"
+            sqlite3 teste.db < "$f"
+          done
+          sqlite3 teste.db ".tables"
+
+      - name: Valida HTML
+        run: npx --yes htmlhint "**/*.html"
