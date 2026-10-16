@@ -18,7 +18,8 @@ jobs:
       - name: Procura segredos versionados
         shell: bash
         run: |
-          if git grep -nE 'GOCSPX-[A-Za-z0-9_-]{20,}|client_secret[[:space:]]*=[[:space:]]*"[A-Za-z0-9_-]{20,}' -- . ':!*.md' ':!.github/workflows/ci.yml'; then
+          pattern="GOCSPX-[A-Za-z0-9_-]{20,}|client_secret[[:space:]]*=[[:space:]]*[\"'][^\"']{8,}[\"']"
+          if git grep -nE "$pattern" -- . ':!*.md' ':!.github/workflows/ci.yml'; then
             echo "::error::Possível segredo no repositório"
             exit 1
           fi
