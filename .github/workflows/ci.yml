@@ -21,7 +21,7 @@ jobs:
           if git grep -nE 'GOCSPX-[A-Za-z0-9_-]{20,}|client_secret[[:space:]]*=[[:space:]]*"[A-Za-z0-9_-]{20,}' -- . ':!*.md' ':!.github/workflows/ci.yml'; then
             echo "::error::Possível segredo no repositório"
             exit 1
-          fii
+          fi
 
       - name: Instala SQLite
         run: sudo apt-get update && sudo apt-get install -y sqlite3
