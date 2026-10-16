@@ -53,6 +53,7 @@ jobs:
           } > prompt.txt
 
       - id: ia
+        continue-on-error: true
         uses: actions/ai-inference@v3
         with:
           prompt-file: prompt.txt
@@ -60,9 +61,22 @@ jobs:
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
 
+      - name: Gera revisão alternativa com GITHUB_TOKEN se necessário
+        if: steps.ia.outcome != 'success'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: copilot -p "$(cat prompt.txt)" -s --no-ask-user > resposta-ia.txt
+
       - name: Comenta no PR
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          IA_OUTCOME: ${{ steps.ia.outcome }}
           RESPONSE_FILE: ${{ steps.ia.outputs.response-file }}
-        run: gh pr comment "$PR_NUMBER" --body-file "$RESPONSE_FILE"
+        shell: bash
+        run: |
+          if [ "$IA_OUTCOME" = "success" ] && [ -n "$RESPONSE_FILE" ] && [ -f "$RESPONSE_FILE" ]; then
+            gh pr comment "$PR_NUMBER" --body-file "$RESPONSE_FILE"
+          else
+            gh pr comment "$PR_NUMBER" --body-file resposta-ia.txt
+          fi
