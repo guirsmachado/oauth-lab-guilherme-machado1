@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'migrations/**'
-      - '.github/workflows/migrar.yml'
 
 permissions:
   contents: read
@@ -25,13 +24,24 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           D1_DATABASE_NAME: ${{ vars.D1_DATABASE_NAME }}
+          D1_DATABASE_ID: ${{ vars.D1_DATABASE_ID }}
         shell: bash
         run: |
-          if [ -z "$D1_DATABASE_NAME" ]; then
-            echo "::error::Configure a variável D1_DATABASE_NAME em Settings > Secrets and variables > Actions"
+          if [ -z "$D1_DATABASE_NAME" ] || [ -z "$D1_DATABASE_ID" ]; then
+            echo "::error::Configure as variáveis D1_DATABASE_NAME e D1_DATABASE_ID em Settings > Secrets and variables > Actions"
             exit 1
           fi
-          npx --yes wrangler d1 migrations apply "$D1_DATABASE_NAME" --remote
+          cat > wrangler-ci.toml <<EOF
+          name = "oauth-lab-migrations"
+          compatibility_date = "2026-10-16"
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "$D1_DATABASE_NAME"
+          database_id = "$D1_DATABASE_ID"
+          migrations_dir = "migrations"
+          EOF
+          npx --yes wrangler d1 migrations apply "$D1_DATABASE_NAME" --remote --config wrangler-ci.toml
 
       - name: Instala GitHub Copilot CLI
         run: npm install --global @github/copilot
