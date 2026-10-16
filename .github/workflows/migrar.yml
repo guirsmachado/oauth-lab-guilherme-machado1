@@ -22,9 +22,9 @@ jobs:
 
       - name: Aplica migrações no D1 remoto
         env:
-          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: \${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          D1_DATABASE_NAME: \${{ vars.D1_DATABASE_NAME }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          D1_DATABASE_NAME: ${{ vars.D1_DATABASE_NAME }}
         shell: bash
         run: |
           if [ -z "$D1_DATABASE_NAME" ]; then
@@ -37,17 +37,17 @@ jobs:
         id: resumo
         uses: actions/ai-inference@v1
         env:
-          COPILOT_GITHUB_TOKEN: \${{ secrets.COPILOT_PAT }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
         with:
           prompt: "Resuma em português, em até 5 tópicos, as migrações SQL versionadas neste repositório e os cuidados para aplicá-las no Cloudflare D1. Não afirme que foram aplicadas sem evidência do log anterior."
           system-prompt: "Você resume migrações de banco de dados com precisão."
 
       - name: Publica resumo
         env:
-          RESUMO_IA: \${{ steps.resumo.outputs.response }}
+          RESUMO_IA: ${{ steps.resumo.outputs.response }}
         run: |
           {
             echo "## Resumo das migrações D1"
             echo
-            echo "$RESUMO_IA"
+            cat "$RESPONSE_FILE"
           } >> "$GITHUB_STEP_SUMMARY"
