@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  copilot-requests: write
 
 jobs:
   aplicar:
@@ -54,7 +55,6 @@ jobs:
         with:
           prompt: "Resuma em português, em até 5 tópicos, as migrações SQL versionadas neste repositório e os cuidados para aplicá-las no Cloudflare D1. Não afirme que foram aplicadas sem evidência do log anterior."
           system-prompt: "Você resume migrações de banco de dados com precisão."
-          model: gpt-4.1
 
       - name: Publica resumo
         env:
