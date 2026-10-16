@@ -44,7 +44,7 @@ jobs:
 
       - name: Publica resumo
         env:
-          RESUMO_IA: ${{ steps.resumo.outputs.response }}
+          RESPONSE_FILE: ${{ steps.resumo.outputs.response-file }}
         run: |
           {
             echo "## Resumo das migrações D1"
