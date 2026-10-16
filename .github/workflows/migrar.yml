@@ -48,12 +48,13 @@ jobs:
 
       - name: Resume as migrações com IA (bônus)
         id: resumo
-        uses: actions/ai-inference@v1
+        uses: actions/ai-inference@v3
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
         with:
           prompt: "Resuma em português, em até 5 tópicos, as migrações SQL versionadas neste repositório e os cuidados para aplicá-las no Cloudflare D1. Não afirme que foram aplicadas sem evidência do log anterior."
           system-prompt: "Você resume migrações de banco de dados com precisão."
+          model: gpt-4.1
 
       - name: Publica resumo
         env:
