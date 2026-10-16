@@ -1,0 +1,67 @@
+name: migrar
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'migrations/**'
+
+permissions:
+  contents: read
+  copilot-requests: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Aplica migrações no D1 remoto
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          D1_DATABASE_NAME: ${{ vars.D1_DATABASE_NAME }}
+          D1_DATABASE_ID: ${{ vars.D1_DATABASE_ID }}
+        shell: bash
+        run: |
+          if [ -z "$D1_DATABASE_NAME" ] || [ -z "$D1_DATABASE_ID" ]; then
+            echo "::error::Configure as variáveis D1_DATABASE_NAME e D1_DATABASE_ID em Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          cat > wrangler-ci.toml <<EOF
+          name = "oauth-lab-migrations"
+          compatibility_date = "2026-10-16"
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "$D1_DATABASE_NAME"
+          database_id = "$D1_DATABASE_ID"
+          migrations_dir = "migrations"
+          EOF
+          npx --yes wrangler d1 migrations apply "$D1_DATABASE_NAME" --remote --config wrangler-ci.toml
+
+      - name: Instala GitHub Copilot CLI
+        run: npm install --global @github/copilot
+
+      - name: Resume as migrações com IA (bônus)
+        id: resumo
+        uses: actions/ai-inference@v3
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        with:
+          prompt: "Resuma em português, em até 5 tópicos, as migrações SQL versionadas neste repositório e os cuidados para aplicá-las no Cloudflare D1. Não afirme que foram aplicadas sem evidência do log anterior."
+          system-prompt: "Você resume migrações de banco de dados com precisão."
+
+      - name: Publica resumo
+        env:
+          RESPONSE_FILE: ${{ steps.resumo.outputs.response-file }}
+        run: |
+          {
+            echo "## Resumo das migrações D1"
+            echo
+            cat "$RESPONSE_FILE"
+          } >> "$GITHUB_STEP_SUMMARY"
