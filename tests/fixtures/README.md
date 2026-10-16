@@ -2,4 +2,4 @@
 
 Os arquivos desta pasta são exemplos isolados usados para demonstrar a revisão de código na avaliação. Não são importados nem executados pela aplicação.
 
-`ai-review-vulnerable.js` representa temporariamente uma consulta SQL insegura para testar se a revisão identifica concatenação de entrada em SQL. A versão final será corrigida com parâmetros vinculados.
+O exemplo foi inicialmente enviado com concatenação insegura de SQL para testar a revisão por IA. A versão final usa `prepare(...).bind(...)`, que separa os parâmetros da consulta SQL.
