@@ -33,8 +33,8 @@ jobs:
           test -d migrations || { echo "::error::Pasta migrations/ ausente"; exit 1; }
           shopt -s nullglob
           files=(migrations/*.sql)
-          test \${#files[@]} -gt 0 || { echo "::error::Nenhuma migração SQL encontrada"; exit 1; }
-          for f in "\${files[@]}"; do
+          test ${#files[@]} -gt 0 || { echo "::error::Nenhuma migração SQL encontrada"; exit 1; }
+          for f in "${files[@]}"; do
             echo "Validando $f"
             sqlite3 teste.db < "$f"
           done
