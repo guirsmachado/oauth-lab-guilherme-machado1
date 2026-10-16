@@ -33,6 +33,9 @@ jobs:
           fi
           npx --yes wrangler d1 migrations apply "$D1_DATABASE_NAME" --remote
 
+      - name: Instala GitHub Copilot CLI
+        run: npm install --global @github/copilot
+
       - name: Resume as migrações com IA (bônus)
         id: resumo
         uses: actions/ai-inference@v1
