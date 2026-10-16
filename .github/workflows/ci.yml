@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Falha proposital para evidência da avaliação (temporária)
+        run: exit 1
+
       - name: Procura segredos versionados
         shell: bash
         run: |
