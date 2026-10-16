@@ -21,6 +21,16 @@ jobs:
         with:
           node-version: 22
 
+      - name: Confere se o token do Copilot foi configurado
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        shell: bash
+        run: |
+          if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
+            echo "::error::O secret COPILOT_PAT está ausente ou vazio. Cadastre um fine-grained PAT com Copilot Requests."
+            exit 1
+          fi
+
       - name: Instala GitHub Copilot CLI
         run: npm install --global @github/copilot
 
